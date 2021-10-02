@@ -54,7 +54,7 @@ app.delete("/image/:id", (req, res) => {
   }
 });
 
-app.get("/merge", (req, res, next) => {
+app.get("/merge", (req, res) => {
   try {
     const { front, back, color = "255,255,255", treshold = 0 } = req.query;
     const colorTokens = color.split(",").map((item) => +item);
@@ -63,11 +63,11 @@ app.get("/merge", (req, res, next) => {
       colorTokens.some((item) => item < 0 || item > 255)
     ) {
       res.status(400).send("color is invalid");
-      next();
+      return;
     }
     if (!front || !back || !db[front] || !db[back]) {
       res.status(404).send("image invalid or not found");
-      next();
+      return;
     }
 
     const backImage = fs.createReadStream(
@@ -76,7 +76,7 @@ app.get("/merge", (req, res, next) => {
     const frontImage = fs.createReadStream(
       path.resolve(__dirname, db[front].path)
     );
-    res.setHeader("content-type", "image/jpeg");
+    res.setHeader("Content-Type", "image/jpeg");
     replaceBackground(frontImage, backImage, colorTokens, treshold).then(
       (stream) => stream.pipe(res)
     );
