@@ -48,7 +48,7 @@ app.delete("/image/:id", (req, res) => {
       if (err) {
         res.status(500).send(err.message);
       }
-      db[id] = undefined;
+      delete db[id];
       res.status(200).send();
     });
   }
@@ -76,6 +76,7 @@ app.get("/merge", (req, res, next) => {
     const frontImage = fs.createReadStream(
       path.resolve(__dirname, db[front].path)
     );
+    res.setHeader("Content-Type", db[front].mimetype);
     replaceBackground(frontImage, backImage, colorTokens, treshold).then(
       (stream) => stream.pipe(res)
     );
