@@ -11,6 +11,17 @@ const port = process.env.PORT || 8080;
 
 const db = {};
 
+function hexToRgb(hex) {
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return result
+    ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16),
+      }
+    : null;
+}
+
 app.post("/upload", upload.single("image"), (req, res) => {
   const id = req.file.filename;
   db[id] = { id, createdAt: Date.now(), ...req.file };
@@ -57,13 +68,17 @@ app.delete("/image/:id", (req, res) => {
 app.get("/merge", (req, res) => {
   try {
     const { front, back, color = "255,255,255", threshold = 0 } = req.query;
-    const colorTokens = color.split(",").map((item) => +item);
+    let colorTokens = color.split(",").map((item) => +item);
     if (
       colorTokens.length != 3 ||
       colorTokens.some((item) => item < 0 || item > 255)
     ) {
-      res.status(410).send("color is invalid");
-      return;
+      const rgb = hexToRgb(color);
+      if (rgb) {
+        colorTokens = [rgb.r, rgb.g, rgb.b];
+      } else {
+        res.status(400).send("color is invalid");
+      }
     }
     if (!front || !back || !db[front] || !db[back]) {
       res.status(404).send("image invalid or not found");
