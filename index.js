@@ -56,13 +56,13 @@ app.delete("/image/:id", (req, res) => {
 
 app.get("/merge", (req, res) => {
   try {
-    const { front, back, color = "255,255,255", treshold = 0 } = req.query;
+    const { front, back, color = "255,255,255", threshold = 0 } = req.query;
     const colorTokens = color.split(",").map((item) => +item);
     if (
       colorTokens.length != 3 ||
       colorTokens.some((item) => item < 0 || item > 255)
     ) {
-      res.status(400).send("color is invalid");
+      res.status(410).send("color is invalid");
       return;
     }
     if (!front || !back || !db[front] || !db[back]) {
@@ -77,7 +77,7 @@ app.get("/merge", (req, res) => {
       path.resolve(__dirname, db[front].path)
     );
     res.setHeader("Content-Type", "image/jpeg");
-    replaceBackground(frontImage, backImage, colorTokens, treshold).then(
+    replaceBackground(frontImage, backImage, colorTokens, threshold).then(
       (stream) => stream.pipe(res)
     );
   } catch (e) {
