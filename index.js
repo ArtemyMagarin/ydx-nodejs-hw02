@@ -14,7 +14,7 @@ const db = {};
 app.post("/upload", upload.single("image"), (req, res) => {
   const id = req.file.filename;
   db[id] = { id, createdAt: Date.now(), ...req.file };
-  res.send(JSON.stringify(id));
+  res.send({ id });
 });
 
 app.get("/list", (req, res) => {
