@@ -76,8 +76,7 @@ app.get("/merge", (req, res, next) => {
     const frontImage = fs.createReadStream(
       path.resolve(__dirname, db[front].path)
     );
-    res.type(db[front].mimetype);
-    res.setHeader("Content-Type", db[front].mimetype);
+    res.setHeader("Content-Type", "image/jpeg");
     replaceBackground(frontImage, backImage, colorTokens, treshold).then(
       (stream) => stream.pipe(res)
     );
